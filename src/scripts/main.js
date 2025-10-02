@@ -1,11 +1,11 @@
 'use strict';
 
 function waitFor(element, eventName) {
-  return new Promise((resolve) => {
-    if (!element) {
-      return;
-    }
+  if (!element) {
+    return Promise.reject(new Error('element is required'));
+  }
 
+  return new Promise((resolve) => {
     const handler = () => {
       resolve(
         `It was ${eventName} on the element: ${element.nodeName}, id: ${element.id}.`,
@@ -17,11 +17,19 @@ function waitFor(element, eventName) {
 }
 
 function printMessage(message) {
+  let container = document.querySelector('[data-qa="message-container"]');
+
+  if (!container) {
+    container = document.createElement('div');
+    container.setAttribute('data-qa', 'message-container');
+    document.body.appendChild(container);
+  }
+
   const div = document.createElement('div');
 
   div.className = 'message';
   div.textContent = message;
-  document.body.appendChild(div);
+  container.appendChild(div);
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -29,22 +37,16 @@ document.addEventListener('DOMContentLoaded', () => {
   const passwordField = document.getElementById('password');
   const button = document.getElementById('submit');
 
-  if (loginField) {
-    waitFor(loginField, 'click').then(printMessage);
-    waitFor(loginField, 'input').then(printMessage);
-    waitFor(loginField, 'blur').then(printMessage);
-  }
+  waitFor(loginField, 'click').then(printMessage).catch(printMessage);
+  waitFor(loginField, 'input').then(printMessage).catch(printMessage);
+  waitFor(loginField, 'blur').then(printMessage).catch(printMessage);
 
-  if (passwordField) {
-    waitFor(passwordField, 'click').then(printMessage);
-    waitFor(passwordField, 'input').then(printMessage);
-    waitFor(passwordField, 'blur').then(printMessage);
-  }
+  waitFor(passwordField, 'click').then(printMessage).catch(printMessage);
+  waitFor(passwordField, 'input').then(printMessage).catch(printMessage);
+  waitFor(passwordField, 'blur').then(printMessage).catch(printMessage);
 
-  if (button) {
-    waitFor(button, 'click').then(printMessage);
-    waitFor(button, 'blur').then(printMessage);
-  }
+  waitFor(button, 'click').then(printMessage).catch(printMessage);
+  waitFor(button, 'blur').then(printMessage).catch(printMessage);
 });
 
 window.waitFor = waitFor;
