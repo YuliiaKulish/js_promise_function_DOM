@@ -2,44 +2,50 @@
 
 function waitFor(element, eventName) {
   return new Promise((resolve) => {
+    if (!element) {
+      return;
+    }
+
     const handler = () => {
       resolve(
         `It was ${eventName} on the element: ${element.nodeName}, id: ${element.id}.`,
       );
-      element.removeEventListener(eventName, handler);
     };
 
-    element.addEventListener(eventName, handler);
+    element.addEventListener(eventName, handler, { once: true });
   });
 }
 
-const printMessage = (message) => {
-  let container = document.querySelector('[data-qa="message-container"]');
-
-  if (!container) {
-    container = document.createElement('div');
-    container.setAttribute('data-qa', 'message-container');
-    document.body.appendChild(container);
-  }
-
+function printMessage(message) {
   const div = document.createElement('div');
 
   div.className = 'message';
   div.textContent = message;
-  container.appendChild(div);
-};
+  document.body.appendChild(div);
+}
 
-const loginField = document.getElementById('login');
-const passwordField = document.getElementById('password');
-const button = document.getElementById('submit');
+document.addEventListener('DOMContentLoaded', () => {
+  const loginField = document.getElementById('login');
+  const passwordField = document.getElementById('password');
+  const button = document.getElementById('submit');
 
-waitFor(loginField, 'click').then(printMessage);
-waitFor(passwordField, 'click').then(printMessage);
-waitFor(button, 'click').then(printMessage);
+  if (loginField) {
+    waitFor(loginField, 'click').then(printMessage);
+    waitFor(loginField, 'input').then(printMessage);
+    waitFor(loginField, 'blur').then(printMessage);
+  }
 
-waitFor(loginField, 'input').then(printMessage);
-waitFor(passwordField, 'input').then(printMessage);
+  if (passwordField) {
+    waitFor(passwordField, 'click').then(printMessage);
+    waitFor(passwordField, 'input').then(printMessage);
+    waitFor(passwordField, 'blur').then(printMessage);
+  }
 
-waitFor(loginField, 'blur').then(printMessage);
-waitFor(passwordField, 'blur').then(printMessage);
-waitFor(button, 'blur').then(printMessage);
+  if (button) {
+    waitFor(button, 'click').then(printMessage);
+    waitFor(button, 'blur').then(printMessage);
+  }
+});
+
+window.waitFor = waitFor;
+window.printMessage = printMessage;
